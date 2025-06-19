@@ -24,11 +24,11 @@ RUN mkdir -p uploads static/eda_plots
 
 # Set environment variables
 ENV FLASK_APP=app.py
-ENV FLASK_ENV=production
+ENV FLASK_DEBUG=False
 ENV PYTHONUNBUFFERED=1
 
 # Expose port (default 5000, but configurable via PORT env var)
 EXPOSE ${PORT:-5000}
 
-# Run the application using gunicorn
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-5000} --workers 4 app:app"]
+# Run the application using gunicorn with proper timeouts for heavy ML operations
+CMD sh -c "gunicorn --bind 0.0.0.0:${PORT:-5000} --workers 2 --timeout 120 --worker-class sync --max-requests 1000 --max-requests-jitter 100 app:app"

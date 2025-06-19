@@ -41,6 +41,10 @@ app.secret_key = 'abc123'
 def upload_file():
     return render_template("index.html")
 
+@app.route("/health")
+def health_check():
+    return {"status": "healthy"}, 200
+
 @app.route("/drop_rows", methods=["GET"])
 def drop_rows():
     if "df" not in session:
