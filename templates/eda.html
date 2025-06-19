@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Analysis Report - CSV Insights</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #fafbfc;
+            --bg-secondary: #ffffff;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --accent: #2563eb;
+            --accent-light: #3b82f6;
+            --success: #059669;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+            --radius-lg: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 72px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-light);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        /* Main Layout */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 24px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            height: fit-content;
+            position: sticky;
+            top: 96px;
+            border: 1px solid var(--border);
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .nav-item {
+            display: block;
+            padding: 8px 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius);
+            margin-bottom: 4px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Content Area */
+        .content {
+            min-height: calc(100vh - 120px);
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Section Cards */
+        .section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-content {
+            padding: 24px;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        table.data {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-secondary);
+        }
+
+        table.data th {
+            background: var(--bg-primary);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        table.data td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 14px;
+        }
+
+        table.data tr:hover {
+            background: var(--bg-primary);
+        }
+
+        /* Lists */
+        .info-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .info-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-list li:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .info-value {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .info-value.error {
+            color: var(--error);
+        }
+
+        .info-value.success {
+            color: var(--success);
+        }
+
+        /* Analytics Items */
+        .analytics-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .analytics-item {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: var(--radius);
+            background: var(--bg-primary);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .analytics-item:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Missing Data Alerts */
+        .alert {
+            padding: 16px;
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: #f0fdf4;
+            border-color: var(--success);
+            color: #166534;
+        }
+
+        .alert-warning {
+            background: #fffbeb;
+            border-color: var(--warning);
+            color: #92400e;
+        }
+
+        .missing-data-item {
+            margin-bottom: 16px;
+            padding: 16px;
+            background: var(--bg-primary);
+            border-radius: var(--radius);
+            border-left: 4px solid var(--warning);
+        }
+
+        .missing-data-actions {
+            margin-top: 8px;
+        }
+
+        .missing-data-actions button {
+            background: var(--warning);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        /* Plot Grid */
+        .plots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+        }
+
+        .plot-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .plot-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-primary);
+        }
+
+        .plot-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .plot-content {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .plot-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--radius);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                padding: 16px;
+            }
+
+            .sidebar {
+                position: static;
+                order: 2;
+                padding: 20px;
+            }
+
+            .content {
+                order: 1;
+            }
+
+            .header-inner {
+                padding: 0 16px;
+                height: 64px;
+            }
+
+            .sidebar {
+                top: 80px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 12px;
+                gap: 12px;
+            }
+
+            .header-inner {
+                padding: 0 12px;
+                height: 60px;
+                flex-direction: column;
+                gap: 8px;
+                padding-top: 8px;
+                padding-bottom: 8px;
+            }
+
+            .logo {
+                font-size: 20px;
+            }
+
+            .logo-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 14px;
+            }
+
+            .header-actions {
+                gap: 8px;
+            }
+
+            .btn {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+
+            .page-title {
+                font-size: 28px;
+                line-height: 1.2;
+            }
+
+            .page-subtitle {
+                font-size: 14px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+
+            .stat-number {
+                font-size: 20px;
+            }
+
+            .stat-label {
+                font-size: 13px;
+            }
+
+            .section {
+                margin-bottom: 16px;
+            }
+
+            .section-header {
+                padding: 16px 20px;
+            }
+
+            .section-title {
+                font-size: 16px;
+            }
+
+            .section-content {
+                padding: 20px;
+            }
+
+            .plots-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .plot-header {
+                padding: 12px 16px;
+            }
+
+            .plot-title {
+                font-size: 14px;
+            }
+
+            .plot-content {
+                padding: 16px;
+            }
+
+            .sidebar-title {
+                font-size: 16px;
+                margin-bottom: 12px;
+            }
+
+            .nav-item {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .table-container {
+                font-size: 14px;
+                overflow-x: auto;
+            }
+
+            table.data th,
+            table.data td {
+                padding: 8px;
+                font-size: 13px;
+            }
+
+            .info-list li {
+                padding: 6px 0;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 2px;
+            }
+
+            .analytics-item {
+                padding: 10px 12px;
+                font-size: 13px;
+                line-height: 1.4;
+            }
+
+            .missing-data-item {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+
+            .missing-data-actions button {
+                padding: 4px 8px;
+                font-size: 11px;
+                margin-right: 6px;
+                margin-bottom: 4px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-container {
+                padding: 8px;
+            }
+
+            .header-inner {
+                padding: 0 8px;
+                height: 120px;
+                align-items: flex-start;
+                padding-top: 12px;
+            }
+
+            .logo {
+                font-size: 18px;
+            }
+
+            .logo-icon {
+                width: 24px;
+                height: 24px;
+                font-size: 12px;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                width: 100%;
+                gap: 6px;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+                padding: 8px 12px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .page-subtitle {
+                font-size: 13px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .section-header {
+                padding: 12px 16px;
+            }
+
+            .section-content {
+                padding: 16px;
+            }
+
+            .sidebar {
+                padding: 16px;
+            }
+
+            .sidebar-title {
+                font-size: 14px;
+            }
+
+            .nav-item {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .plot-content img {
+                max-width: 100%;
+                height: auto;
+            }
+
+            .pdf-loading-container {
+                margin: 0 16px;
+                padding: 24px;
+            }
+
+            .pdf-loading-title {
+                font-size: 20px;
+            }
+
+            .pdf-loading-subtitle {
+                font-size: 13px;
+            }
+
+            .pdf-loading-step {
+                font-size: 13px;
+            }
+
+            .pdf-step-icon {
+                width: 18px;
+                height: 18px;
+                font-size: 9px;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (max-width: 768px) {
+            .btn, .nav-item, .missing-data-actions button {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .nav-item {
+                min-height: 40px;
+            }
+
+            .missing-data-actions button {
+                min-height: 36px;
+                min-width: 80px;
+            }
+        }
+
+        /* Loading state */
+        .loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border-light);
+            border-top: 2px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+                 @keyframes spin {
+             0% { transform: rotate(0deg); }
+             100% { transform: rotate(360deg); }
+         }
+
+         /* PDF Loading Animation */
+         .pdf-loading-overlay {
+             position: fixed;
+             top: 0;
+             left: 0;
+             width: 100%;
+             height: 100%;
+             background: rgba(250, 251, 252, 0.95);
+             backdrop-filter: blur(4px);
+             display: none;
+             align-items: center;
+             justify-content: center;
+             z-index: 1001;
+         }
+
+         .pdf-loading-overlay.show {
+             display: flex;
+         }
+
+         .pdf-loading-container {
+             text-align: center;
+             max-width: 400px;
+             padding: 40px;
+             background: var(--bg-secondary);
+             border-radius: var(--radius-lg);
+             border: 1px solid var(--border);
+             box-shadow: var(--shadow-lg);
+         }
+
+         .pdf-loading-spinner {
+             width: 60px;
+             height: 60px;
+             border: 3px solid var(--border-light);
+             border-top: 3px solid var(--accent);
+             border-radius: 50%;
+             animation: spin 1s linear infinite;
+             margin: 0 auto 24px;
+         }
+
+         .pdf-loading-title {
+             font-size: 24px;
+             font-weight: 600;
+             color: var(--text-primary);
+             margin-bottom: 8px;
+         }
+
+         .pdf-loading-subtitle {
+             font-size: 14px;
+             color: var(--text-secondary);
+             margin-bottom: 32px;
+         }
+
+         .pdf-loading-steps {
+             text-align: left;
+         }
+
+         .pdf-loading-step {
+             display: flex;
+             align-items: center;
+             gap: 12px;
+             padding: 8px 0;
+             font-size: 14px;
+             color: var(--text-muted);
+             transition: all 0.3s ease;
+         }
+
+         .pdf-loading-step.active {
+             color: var(--accent);
+             font-weight: 500;
+         }
+
+         .pdf-loading-step.completed {
+             color: var(--success);
+         }
+
+         .pdf-step-icon {
+             width: 20px;
+             height: 20px;
+             border-radius: 50%;
+             border: 2px solid var(--border);
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             font-size: 10px;
+             flex-shrink: 0;
+             transition: all 0.3s ease;
+         }
+
+         .pdf-loading-step.active .pdf-step-icon {
+             border-color: var(--accent);
+             background: var(--accent);
+             color: white;
+         }
+
+         .pdf-loading-step.completed .pdf-step-icon {
+             border-color: var(--success);
+             background: var(--success);
+             color: white;
+         }
+
+         .pdf-progress-bar {
+             width: 100%;
+             height: 4px;
+             background: var(--border-light);
+             border-radius: 2px;
+             margin-top: 24px;
+             overflow: hidden;
+         }
+
+         .pdf-progress-fill {
+             height: 100%;
+             background: linear-gradient(90deg, var(--accent), var(--accent-light));
+             width: 0%;
+             transition: width 0.5s ease;
+             border-radius: 2px;
+         }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a href="/" class="logo">
+                <div class="logo-icon">C</div>
+                CSV Insights
+            </a>
+            <div class="header-actions">
+                <button onclick="generate_pdf()" class="btn btn-primary">
+                    📄 Generate PDF
+                </button>
+                <a href="/" class="btn btn-secondary">
+                    ← New Analysis
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <h3 class="sidebar-title">Report Sections</h3>
+            <nav>
+                <a href="#overview" class="nav-item active">📊 Overview</a>
+                <a href="#data-quality" class="nav-item">🔍 Data Quality</a>
+                <a href="#statistics" class="nav-item">📈 Statistics</a>
+                <a href="#analytics" class="nav-item">🧠 Insights</a>
+                <a href="#visualizations" class="nav-item">📊 Charts</a>
+                <a href="#correlations" class="nav-item">🔗 Correlations</a>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <div class="page-header">
+                <h1 class="page-title">Data Analysis Report</h1>
+                <p class="page-subtitle">Comprehensive analysis of your CSV data</p>
+            </div>
+
+            <!-- Overview Stats -->
+            <div id="overview" class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">{{ shape[0] }}</span>
+                    <span class="stat-label">Rows</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">{{ shape[1] }}</span>
+                    <span class="stat-label">Columns</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">{{ nulls.values() | sum }}</span>
+                    <span class="stat-label">Missing Values</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">{{ (nulls.values() | list | length) - (nulls.values() | select("equalto", 0) | list | length) }}</span>
+                    <span class="stat-label">Columns with Missing Data</span>
+                </div>
+            </div>
+
+            <!-- Data Structure -->
+            <section class="section">
+                <div class="section-header">
+                    <h2 class="section-title">📋 Data Structure</h2>
+                </div>
+                <div class="section-content">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <div>
+                            <h4 style="margin-bottom: 12px; color: var(--text-primary);">Columns</h4>
+                            <ul class="info-list">
+                                {% for col in columns %}
+                                <li>
+                                    <span class="info-label">{{ col }}</span>
+                                    <span class="info-value">{{ dtypes[col] if dtypes else 'Unknown' }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="margin-bottom: 12px; color: var(--text-primary);">Missing Values</h4>
+                            <ul class="info-list">
+                                {% for col, count in nulls.items() %}
+                                <li>
+                                    <span class="info-label">{{ col }}</span>
+                                    <span class="info-value {% if count > 0 %}error{% else %}success{% endif %}">{{ count }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Data Quality -->
+            <section id="data-quality" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">🔍 Data Quality Report</h2>
+                </div>
+                <div class="section-content">
+                    {% if missing_cols %}
+                        {% for col, count in missing_cols.items() %}
+                        <div class="missing-data-item">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <strong>{{ col }}</strong>
+                                <span style="color: var(--warning); font-weight: 600;">{{ count }} missing values</span>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 8px;">
+                                Recommended actions:
+                            </p>
+                            <div class="missing-data-actions">
+                                <button onclick="drop_rows('{{ col }}')">Drop Rows</button>
+                                <button>Fill with Mean</button>
+                                <button>Fill with Mode</button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-success">
+                            <strong>✅ Excellent!</strong> No missing data found in your dataset.
+                        </div>
+                    {% endif %}
+
+                    {% if type_suggestions %}
+                    <div style="margin-top: 24px;">
+                        <h4 style="margin-bottom: 12px; color: var(--text-primary);">💡 Type Suggestions</h4>
+                        <ul class="analytics-list">
+                            {% for suggestion in type_suggestions %}
+                            <li class="analytics-item">{{ suggestion }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Data Preview -->
+            <section class="section">
+                <div class="section-header">
+                    <h2 class="section-title">👀 Data Preview</h2>
+                </div>
+                <div class="section-content">
+                    <div class="table-container">
+                        {{ preview|safe }}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Statistics -->
+            <section id="statistics" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">📈 Statistical Summary</h2>
+                </div>
+                <div class="section-content">
+                    <div class="table-container">
+                        {{ describe_table|safe }}
+                    </div>
+                    
+                    {% if skewness %}
+                    <div style="margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <div>
+                            <h4 style="margin-bottom: 12px; color: var(--text-primary);">Skewness</h4>
+                            <ul class="info-list">
+                                {% for col, value in skewness.items() %}
+                                <li>
+                                    <span class="info-label">{{ col }}</span>
+                                    <span class="info-value">{{ "%.3f"|format(value) }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="margin-bottom: 12px; color: var(--text-primary);">Kurtosis</h4>
+                            <ul class="info-list">
+                                {% for col, value in kurtosis.items() %}
+                                <li>
+                                    <span class="info-label">{{ col }}</span>
+                                    <span class="info-value">{{ "%.3f"|format(value) }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Analytics Insights -->
+            <section id="analytics" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">🧠 AI Insights</h2>
+                </div>
+                <div class="section-content">
+                    <ul class="analytics-list">
+                        {% for insight in analytics %}
+                        <li class="analytics-item">{{ insight }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Visualizations -->
+            <section id="visualizations" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">📊 Data Visualizations</h2>
+                </div>
+                <div class="section-content">
+                    <div class="plots-grid">
+                        {% for title, img in univariate_plots.items() %}
+                        <div class="plot-card">
+                            <div class="plot-header">
+                                <h3 class="plot-title">{{ title.replace('_', ' ').title() }}</h3>
+                            </div>
+                            <div class="plot-content">
+                                <img src="data:image/png;base64,{{ img }}" alt="{{ title }}">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Correlations -->
+            <section id="correlations" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">🔗 Correlation Analysis</h2>
+                </div>
+                <div class="section-content">
+                    <div class="plots-grid">
+                        {% for title, img in bivariate_plots.items() %}
+                        <div class="plot-card">
+                            <div class="plot-header">
+                                <h3 class="plot-title">{{ title.replace('_', ' ').title() }}</h3>
+                            </div>
+                            <div class="plot-content">
+                                <img src="data:image/png;base64,{{ img }}" alt="{{ title }}">
+                            </div>
+                        </div>
+                                                 {% endfor %}
+                     </div>
+                 </div>
+             </section>
+                  </main>
+     </div>
+
+     <!-- PDF Loading Overlay -->
+     <div class="pdf-loading-overlay" id="pdf-loading-overlay">
+         <div class="pdf-loading-container">
+             <div class="pdf-loading-spinner"></div>
+             <h2 class="pdf-loading-title">Generating PDF Report</h2>
+             <p class="pdf-loading-subtitle">Please wait while we compile your analysis</p>
+             
+             <div class="pdf-loading-steps">
+                 <div class="pdf-loading-step" id="pdf-step-1">
+                     <div class="pdf-step-icon">1</div>
+                     <span>Collecting data insights...</span>
+                 </div>
+                 <div class="pdf-loading-step" id="pdf-step-2">
+                     <div class="pdf-step-icon">2</div>
+                     <span>Compiling analysis summary...</span>
+                 </div>
+                 <div class="pdf-loading-step" id="pdf-step-3">
+                     <div class="pdf-step-icon">3</div>
+                     <span>Formatting report layout...</span>
+                 </div>
+                 <div class="pdf-loading-step" id="pdf-step-4">
+                     <div class="pdf-step-icon">4</div>
+                     <span>Generating PDF document...</span>
+                 </div>
+                 <div class="pdf-loading-step" id="pdf-step-5">
+                     <div class="pdf-step-icon">5</div>
+                     <span>Preparing download...</span>
+                 </div>
+             </div>
+             
+             <div class="pdf-progress-bar">
+                 <div class="pdf-progress-fill" id="pdf-progress-fill"></div>
+             </div>
+         </div>
+     </div>
+
+     <script>
+        function drop_rows(col) {
+            if (confirm(`Are you sure you want to drop all rows with missing values in column "${col}"?`)) {
+                window.location.href = "/drop_rows?col=" + col;
+            }
+        }
+        
+                 function generate_pdf() {
+             const btn = event.target;
+             const originalText = btn.innerHTML;
+             btn.innerHTML = '<span class="spinner"></span> Generating...';
+             btn.disabled = true;
+             
+             // Show PDF loading animation
+             showPdfLoadingAnimation();
+             
+             // Create download with completion detection
+             const downloadId = Date.now();
+             const downloadUrl = `/generate_pdf?download_id=${downloadId}`;
+             
+             // Start the download
+             const downloadLink = document.createElement('a');
+             downloadLink.href = downloadUrl;
+             downloadLink.download = 'eda_report.pdf';
+             downloadLink.style.display = 'none';
+             document.body.appendChild(downloadLink);
+             downloadLink.click();
+             document.body.removeChild(downloadLink);
+             
+             // Set a cookie to detect download completion
+             document.cookie = `download_${downloadId}=started; path=/`;
+             
+             // Poll for download completion with fallback
+             let pollCount = 0;
+             const maxPolls = 20; // 10 seconds max polling
+             const animationDuration = 3000; // 3 seconds for animation
+             
+             const resetUI = () => {
+                 btn.innerHTML = originalText;
+                 btn.disabled = false;
+                 
+                 // Hide loading overlay
+                 const loadingOverlay = document.getElementById('pdf-loading-overlay');
+                 loadingOverlay.classList.remove('show');
+                 resetPdfSteps();
+                 
+                 // Clean up cookie
+                 document.cookie = `download_${downloadId}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+             };
+             
+             const checkDownload = () => {
+                 pollCount++;
+                 
+                 // Check if download completion cookie exists
+                 if (document.cookie.includes(`download_${downloadId}=completed`)) {
+                     resetUI();
+                 } else if (pollCount >= maxPolls) {
+                     // Fallback: reset after max polls
+                     resetUI();
+                 } else {
+                     // Continue polling every 500ms
+                     setTimeout(checkDownload, 500);
+                 }
+             };
+             
+             // Ensure minimum animation time, then start checking
+             setTimeout(() => {
+                 // If animation is still running, wait a bit more
+                 const loadingOverlay = document.getElementById('pdf-loading-overlay');
+                 if (loadingOverlay.classList.contains('show')) {
+                     checkDownload();
+                 } else {
+                     resetUI();
+                 }
+             }, Math.max(animationDuration, 2000));
+             
+             // Absolute fallback - reset after 8 seconds no matter what
+             setTimeout(resetUI, 8000);
+         }
+
+         function showPdfLoadingAnimation() {
+             const loadingOverlay = document.getElementById('pdf-loading-overlay');
+             const progressFill = document.getElementById('pdf-progress-fill');
+             const steps = [
+                 'pdf-step-1', 'pdf-step-2', 'pdf-step-3', 'pdf-step-4', 'pdf-step-5'
+             ];
+             
+             // Show loading overlay
+             loadingOverlay.classList.add('show');
+             
+             let currentStep = 0;
+             const stepDuration = 600; // Duration for each step in milliseconds
+             
+             function activateStep(stepIndex) {
+                 if (stepIndex > 0) {
+                     // Mark previous step as completed
+                     const prevStep = document.getElementById(steps[stepIndex - 1]);
+                     prevStep.classList.remove('active');
+                     prevStep.classList.add('completed');
+                     prevStep.querySelector('.pdf-step-icon').textContent = '✓';
+                 }
+                 
+                 if (stepIndex < steps.length) {
+                     // Activate current step
+                     const currentStepEl = document.getElementById(steps[stepIndex]);
+                     currentStepEl.classList.add('active');
+                     
+                     // Update progress bar
+                     const progress = ((stepIndex + 1) / steps.length) * 100;
+                     progressFill.style.width = progress + '%';
+                 }
+             }
+             
+             // Start the animation
+             function runSteps() {
+                 if (currentStep < steps.length) {
+                     activateStep(currentStep);
+                     currentStep++;
+                     setTimeout(runSteps, stepDuration);
+                 } else {
+                     // Complete the last step after a short delay
+                     setTimeout(() => {
+                         const lastStep = document.getElementById(steps[steps.length - 1]);
+                         lastStep.classList.remove('active');
+                         lastStep.classList.add('completed');
+                         lastStep.querySelector('.pdf-step-icon').textContent = '✓';
+                         progressFill.style.width = '100%';
+                         
+                         // Don't auto-hide - let the main function handle it
+                     }, stepDuration / 2);
+                 }
+             }
+             
+             runSteps();
+         }
+
+         function resetPdfSteps() {
+             const steps = ['pdf-step-1', 'pdf-step-2', 'pdf-step-3', 'pdf-step-4', 'pdf-step-5'];
+             const progressFill = document.getElementById('pdf-progress-fill');
+             
+             steps.forEach((stepId, index) => {
+                 const step = document.getElementById(stepId);
+                 step.classList.remove('active', 'completed');
+                 step.querySelector('.pdf-step-icon').textContent = index + 1;
+             });
+             
+             progressFill.style.width = '0%';
+         }
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('.nav-item').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                
+                if (targetElement) {
+                    // Update active nav item
+                    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Smooth scroll to target
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Update active nav item on scroll
+        const observerOptions = {
+            threshold: 0.3,
+            rootMargin: '-100px 0px -50% 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id;
+                    if (id) {
+                        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                        const activeLink = document.querySelector(`.nav-item[href="#${id}"]`);
+                        if (activeLink) activeLink.classList.add('active');
+                    }
+                }
+            });
+        }, observerOptions);
+
+        // Observe all sections
+        document.querySelectorAll('section[id], div[id]').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>

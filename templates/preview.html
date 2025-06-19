@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSV Preview</title>
+    <style>
+        table.data {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        table.data th, table.data td {
+            border: 1px solid #999;
+            padding: 8px;
+        }
+        table.data th {
+            background-color: #eee;
+        }
+    </style>
+</head>
+<body>
+    <h2>Preview of Uploaded CSV</h2>
+    {{ table|safe }}
+</body>
+</html>
