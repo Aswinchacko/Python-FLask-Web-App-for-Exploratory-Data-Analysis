@@ -3,6 +3,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
+# Configure matplotlib to avoid memory issues
+plt.rcParams['figure.max_open_warning'] = 0  # Disable warning
+matplotlib.rcParams['figure.max_open_warning'] = 0
 import io
 import base64
 import os 
@@ -19,6 +22,7 @@ def plot_to_img():
     img = base64.b64encode(buf.read()).decode('utf-8')
     buf.close()
     plt.clf()
+    plt.close()  # Important: Close the figure to free memory
     return img
 
 def save_plot_to_file(plot_name):
@@ -29,6 +33,7 @@ def save_plot_to_file(plot_name):
     plt.tight_layout()
     plt.savefig(filepath, format='png', bbox_inches='tight', dpi=100)
     plt.clf()
+    plt.close()  # Important: Close the figure to free memory
     return plot_name  # Return just the filename, not full path
 
 
@@ -429,11 +434,8 @@ def download_report():
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
     
-    # Set up fonts
-    pdf.add_font('Arial', '', 'C:\\Windows\\Fonts\\arial.ttf', uni=True)
-    pdf.add_font('Arial', 'B', 'C:\\Windows\\Fonts\\arialbd.ttf', uni=True)
-    pdf.add_font('Arial', 'I', 'C:\\Windows\\Fonts\\ariali.ttf', uni=True)
-    pdf.add_font('Arial', 'BI', 'C:\\Windows\\Fonts\\arialbi.ttf', uni=True)
+    # Use default fonts (no custom font loading needed)
+    # FPDF has built-in fonts that work cross-platform
 
     # ========================================
     # COVER PAGE
