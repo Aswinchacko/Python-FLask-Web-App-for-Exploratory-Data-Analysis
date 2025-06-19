@@ -436,6 +436,24 @@ def download_report():
     
     # Use default fonts (no custom font loading needed)
     # FPDF has built-in fonts that work cross-platform
+    
+    # Helper function to convert Unicode to ASCII for PDF compatibility
+    def clean_text_for_pdf(text):
+        """Replace Unicode characters with ASCII equivalents for PDF compatibility"""
+        replacements = {
+            '•': '* ',
+            '⚠️': '[WARNING]',
+            '✓': '[OK]',
+            '↔': '<->',
+            '→': '->',
+            '📊': '[STAT]',
+            '🧠': '[INFO]',
+            '📅': '[DATE]',
+            '🔢': '[NUM]'
+        }
+        for unicode_char, ascii_replacement in replacements.items():
+            text = text.replace(unicode_char, ascii_replacement)
+        return text
 
     # ========================================
     # COVER PAGE
@@ -496,9 +514,9 @@ def download_report():
     pdf.set_font("Arial", 'B', 12)
     pdf.cell(0, 8, "KEY METRICS:", ln=True)
     pdf.set_font("Arial", '', 10)
-    pdf.cell(0, 6, f"• Total Records: {shape[0]:,}", ln=True)
-    pdf.cell(0, 6, f"• Total Features: {shape[1]}", ln=True)
-    pdf.cell(0, 6, f"• Missing Values: {df.isnull().sum().sum():,}", ln=True)
+    pdf.cell(0, 6, clean_text_for_pdf(f"• Total Records: {shape[0]:,}"), ln=True)
+    pdf.cell(0, 6, clean_text_for_pdf(f"• Total Features: {shape[1]}"), ln=True)
+    pdf.cell(0, 6, clean_text_for_pdf(f"• Missing Values: {df.isnull().sum().sum():,}"), ln=True)
 
     # ========================================
     # DATASET OVERVIEW
@@ -537,7 +555,7 @@ def download_report():
     # Data types summary
     type_counts = df.dtypes.value_counts()
     for dtype, count in type_counts.items():
-        pdf.cell(0, 6, f"• {dtype}: {count} columns", ln=True)
+        pdf.cell(0, 6, clean_text_for_pdf(f"• {dtype}: {count} columns"), ln=True)
     pdf.ln(5)
     
     # Missing values analysis
@@ -551,9 +569,9 @@ def download_report():
     if missing_data.sum() > 0:
         pdf.cell(0, 6, "Columns with missing values:", ln=True)
         for col in missing_data[missing_data > 0].index:
-            pdf.cell(0, 6, f"• {col}: {missing_data[col]:,} ({missing_percent[col]:.1f}%)", ln=True)
+            pdf.cell(0, 6, clean_text_for_pdf(f"• {col}: {missing_data[col]:,} ({missing_percent[col]:.1f}%)"), ln=True)
     else:
-        pdf.cell(0, 6, "✓ No missing values detected in the dataset.", ln=True)
+        pdf.cell(0, 6, clean_text_for_pdf("✓ No missing values detected in the dataset."), ln=True)
 
     # ========================================
     # STATISTICAL ANALYSIS
@@ -646,8 +664,8 @@ def download_report():
                         col_data = df[col_name]
                         if col_data.dtype in ['float64', 'int64']:
                             skew = col_data.skew()
-                            pdf.cell(0, 6, f"• Distribution shows {'right skew' if skew > 0.5 else 'left skew' if skew < -0.5 else 'symmetric pattern'}", ln=True)
-                            pdf.cell(0, 6, f"• Mean: {col_data.mean():.2f}, Median: {col_data.median():.2f}", ln=True)
+                            pdf.cell(0, 6, clean_text_for_pdf(f"• Distribution shows {'right skew' if skew > 0.5 else 'left skew' if skew < -0.5 else 'symmetric pattern'}"), ln=True)
+                            pdf.cell(0, 6, clean_text_for_pdf(f"• Mean: {col_data.mean():.2f}, Median: {col_data.median():.2f}"), ln=True)
                 elif "box" in plot_name.lower():
                     col_name = plot_name.replace('_box', '').replace('_', ' ')
                     if col_name in df.columns:
@@ -657,18 +675,18 @@ def download_report():
                             Q3 = col_data.quantile(0.75)
                             IQR = Q3 - Q1
                             outliers = df[(col_data < Q1 - 1.5*IQR) | (col_data > Q3 + 1.5*IQR)]
-                            pdf.cell(0, 6, f"• Outliers detected: {len(outliers)} ({len(outliers)/len(df)*100:.1f}% of data)", ln=True)
-                            pdf.cell(0, 6, f"• IQR: {IQR:.2f} (Q1: {Q1:.2f}, Q3: {Q3:.2f})", ln=True)
+                            pdf.cell(0, 6, clean_text_for_pdf(f"• Outliers detected: {len(outliers)} ({len(outliers)/len(df)*100:.1f}% of data)"), ln=True)
+                            pdf.cell(0, 6, clean_text_for_pdf(f"• IQR: {IQR:.2f} (Q1: {Q1:.2f}, Q3: {Q3:.2f})"), ln=True)
                 elif "bar" in plot_name.lower() or "pie" in plot_name.lower():
                     col_name = plot_name.replace('_bar', '').replace('_pie', '').replace('_', ' ')
                     if col_name in df.columns:
                         counts = df[col_name].value_counts()
                         top_val = counts.index[0]
                         top_percent = (counts.iloc[0] / len(df)) * 100
-                        pdf.cell(0, 6, f"• Most frequent value: '{top_val}' ({top_percent:.1f}%)", ln=True)
-                        pdf.cell(0, 6, f"• Unique values: {len(counts)}", ln=True)
+                        pdf.cell(0, 6, clean_text_for_pdf(f"• Most frequent value: '{top_val}' ({top_percent:.1f}%)"), ln=True)
+                        pdf.cell(0, 6, clean_text_for_pdf(f"• Unique values: {len(counts)}"), ln=True)
                         if top_percent > 80:
-                            pdf.cell(0, 6, "• ⚠️ High class imbalance detected", ln=True)
+                            pdf.cell(0, 6, clean_text_for_pdf("• ⚠️ High class imbalance detected"), ln=True)
                 elif "_vs_" in plot_name:
                     vars = plot_name.replace('_vs_', '|').split('|')
                     if len(vars) == 2:
@@ -676,16 +694,16 @@ def download_report():
                         if var1 in df.columns and var2 in df.columns:
                             if df[var1].dtype in ['float64', 'int64'] and df[var2].dtype in ['float64', 'int64']:
                                 corr = df[var1].corr(df[var2])
-                                pdf.cell(0, 6, f"• Correlation coefficient: {corr:.3f}", ln=True)
+                                pdf.cell(0, 6, clean_text_for_pdf(f"• Correlation coefficient: {corr:.3f}"), ln=True)
                                 if abs(corr) > 0.7:
-                                    pdf.cell(0, 6, f"• Strong {'positive' if corr > 0 else 'negative'} correlation", ln=True)
+                                    pdf.cell(0, 6, clean_text_for_pdf(f"• Strong {'positive' if corr > 0 else 'negative'} correlation"), ln=True)
                                 elif abs(corr) > 0.3:
-                                    pdf.cell(0, 6, f"• Moderate {'positive' if corr > 0 else 'negative'} correlation", ln=True)
+                                    pdf.cell(0, 6, clean_text_for_pdf(f"• Moderate {'positive' if corr > 0 else 'negative'} correlation"), ln=True)
                                 else:
-                                    pdf.cell(0, 6, "• Weak correlation", ln=True)
+                                    pdf.cell(0, 6, clean_text_for_pdf("• Weak correlation"), ln=True)
                 elif "heatmap" in plot_name:
-                    pdf.cell(0, 6, "• Correlation matrix showing relationships between all numeric variables", ln=True)
-                    pdf.cell(0, 6, "• Darker colors indicate stronger correlations", ln=True)
+                    pdf.cell(0, 6, clean_text_for_pdf("• Correlation matrix showing relationships between all numeric variables"), ln=True)
+                    pdf.cell(0, 6, clean_text_for_pdf("• Darker colors indicate stronger correlations"), ln=True)
                 
             except Exception as e:
                 print(f"Error adding plot {plot_name}: {e}")
@@ -720,9 +738,9 @@ def download_report():
         
         if strong_corrs:
             for var1, var2, corr_val in strong_corrs:
-                pdf.cell(0, 6, f"• {var1} ↔ {var2}: {corr_val:.3f}", ln=True)
+                pdf.cell(0, 6, clean_text_for_pdf(f"• {var1} ↔ {var2}: {corr_val:.3f}"), ln=True)
         else:
-            pdf.cell(0, 6, "• No strong correlations found (|r| > 0.7)", ln=True)
+            pdf.cell(0, 6, clean_text_for_pdf("• No strong correlations found (|r| > 0.7)"), ln=True)
         
         pdf.ln(5)
         pdf.set_font("Arial", 'B', 12)
@@ -739,11 +757,11 @@ def download_report():
         
         if moderate_corrs:
             for var1, var2, corr_val in moderate_corrs[:5]:  # Show only top 5
-                pdf.cell(0, 6, f"• {var1} ↔ {var2}: {corr_val:.3f}", ln=True)
+                pdf.cell(0, 6, clean_text_for_pdf(f"• {var1} ↔ {var2}: {corr_val:.3f}"), ln=True)
             if len(moderate_corrs) > 5:
-                pdf.cell(0, 6, f"• ... and {len(moderate_corrs)-5} more (see dashboard)", ln=True)
+                pdf.cell(0, 6, clean_text_for_pdf(f"• ... and {len(moderate_corrs)-5} more (see dashboard)"), ln=True)
         else:
-            pdf.cell(0, 6, "• No moderate correlations found", ln=True)
+            pdf.cell(0, 6, clean_text_for_pdf("• No moderate correlations found"), ln=True)
 
     # ========================================
     # KEY INSIGHTS & RECOMMENDATIONS
@@ -772,9 +790,9 @@ def download_report():
     
     if issues:
         for issue in issues:
-            pdf.cell(0, 6, issue, ln=True)
+            pdf.cell(0, 6, clean_text_for_pdf(issue), ln=True)
     else:
-        pdf.cell(0, 6, "✓ No major data quality issues detected.", ln=True)
+        pdf.cell(0, 6, clean_text_for_pdf("✓ No major data quality issues detected."), ln=True)
     
     pdf.ln(5)
     pdf.set_font("Arial", 'B', 12)
@@ -791,7 +809,7 @@ def download_report():
     ]
     
     for rec in recommendations:
-        pdf.cell(0, 6, rec, ln=True)
+        pdf.cell(0, 6, clean_text_for_pdf(rec), ln=True)
 
     # ========================================
     # APPENDICES
