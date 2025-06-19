@@ -4,8 +4,10 @@ services:
     env: python
     region: oregon
     plan: starter
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn --bind 0.0.0.0:$PORT app:app"
+    buildCommand: "pip install --upgrade pip setuptools wheel && pip install -r requirements.txt"
+    startCommand: "gunicorn --bind 0.0.0.0:$PORT app:app" # Use PORT environment variable
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.7
+      - key: PIP_NO_BUILD_ISOLATION
+        value: "false"
